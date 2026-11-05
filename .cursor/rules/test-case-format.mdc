@@ -1,0 +1,15 @@
+---
+description: Enforce the writing-test-cases skill for every new or edited Playwright spec
+alwaysApply: true
+---
+
+# Test case format
+
+When creating or editing any test under `tests/specs/` (or any `*.spec.ts` in this repo):
+
+1. Read and follow `.cursor/skills/writing-test-cases/SKILL.md` first.
+2. Use titles matching `should <expected result> when <condition>`.
+3. Structure each test with `test.step()` blocks named `Input Data: ...` (optional), `Action: ...` (required), and `Validation: ...` (required), in that order.
+4. Put every `expect` inside a `Validation:` step only.
+5. Import `test` / `expect` from `tests/src/fixtures`, not directly from `@playwright/test`.
+6. Run `npm run lint:tests` from `tests/` before considering the work done.

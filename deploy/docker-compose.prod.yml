@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: oakline-postgres
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ecommerce
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ecommerce -d ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    image: ghcr.io/saurabhd2106/oakline-backend:${IMAGE_TAG:-latest}
+    container_name: oakline-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce
+      SPRING_DATASOURCE_USERNAME: ecommerce
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-sample-ecommerce-demo-jwt-secret-key-must-be-long-enough-256bits}
+      APP_DEMO_RESET_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    image: ghcr.io/saurabhd2106/oakline-frontend:${IMAGE_TAG:-latest}
+    container_name: oakline-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
