@@ -9,7 +9,21 @@ Oakline React storefront, Spring Boot REST API, and PostgreSQL. Built to demonst
 - Maven 3.9+
 - Node.js 20+
 
-## Start the stack
+## Run everything in Docker
+
+Only Docker is required. This builds the backend and frontend images from source and starts PostgreSQL, the API, and the storefront:
+
+```bash
+docker compose up -d --build
+```
+
+- Storefront: http://localhost:5173
+- API: http://localhost:8080/api/health
+- PostgreSQL: `localhost:5432` (bound to 127.0.0.1)
+
+Copy `.env.example` to `.env` to change credentials, the JWT secret, or host ports. Stop with `docker compose down` (add `-v` to wipe the database).
+
+## Start the stack (local development)
 
 ```bash
 # 1. Database

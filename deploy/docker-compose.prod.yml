@@ -29,15 +29,28 @@ services:
       APP_DEMO_RESET_ENABLED: "true"
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
 
   frontend:
     image: ghcr.io/saurabhd2106/oakline-frontend:${IMAGE_TAG:-latest}
     container_name: oakline-frontend
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
-      - "80:80"
+      - "80:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: unless-stopped
 
 volumes:

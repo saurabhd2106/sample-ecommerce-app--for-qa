@@ -1,11 +1,6 @@
 node_modules
-src
-public
-*.md
-*.ts
-*.tsx
-*.json
-index.html
-.dockerignore
-Dockerfile
+dist
 .git
+*.md
+Dockerfile
+.dockerignore

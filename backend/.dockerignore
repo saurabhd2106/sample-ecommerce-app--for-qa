@@ -1,8 +1,7 @@
-target/*
-!target/*.jar
+target/
+.mvn/
 *.iml
-.mvn
-src
-pom.xml
-.dockerignore
+.git
+.idea
 Dockerfile
+.dockerignore

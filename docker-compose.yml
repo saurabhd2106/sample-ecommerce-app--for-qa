@@ -1,20 +1,62 @@
+name: oakline
+
 services:
   postgres:
-    image: postgres:16
-    container_name: ecommerce-postgres
+    image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ecommerce
-      POSTGRES_USER: ecommerce
-      POSTGRES_PASSWORD: ecommerce
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce}
+      POSTGRES_USER: ${POSTGRES_USER:-ecommerce}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ecommerce -d ecommerce"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    image: oakline-backend:local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-ecommerce}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-ecommerce}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:-sample-ecommerce-demo-jwt-secret-key-must-be-long-enough-256bits}
+      APP_DEMO_RESET_ENABLED: ${APP_DEMO_RESET_ENABLED:-true}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    image: oakline-frontend:local
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-5173}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
 
 volumes:
   postgres_data:
