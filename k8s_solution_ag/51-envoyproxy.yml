@@ -1,0 +1,49 @@
+# Settings for the Envoy proxy that Envoy Gateway provisions for oakline-gateway.
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: oakline-proxy
+  namespace: oakline
+  labels:
+    app.kubernetes.io/name: oakline-proxy
+    app.kubernetes.io/component: gateway
+    app.kubernetes.io/part-of: oakline
+spec:
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyDeployment:
+        replicas: 2
+        container:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+        pod:
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+                - weight: 100
+                  podAffinityTerm:
+                    topologyKey: kubernetes.io/hostname
+                    labelSelector:
+                      matchLabels:
+                        app.kubernetes.io/name: envoy
+                        gateway.envoyproxy.io/owning-gateway-name: oakline-gateway
+      envoyService:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+      envoyHpa:
+        minReplicas: 2
+        maxReplicas: 5
+        metrics:
+          - type: Resource
+            resource:
+              name: cpu
+              target:
+                type: Utilization
+                averageUtilization: 70
+      envoyPDB:
+        minAvailable: 1

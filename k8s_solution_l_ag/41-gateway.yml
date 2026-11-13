@@ -1,0 +1,15 @@
+# Envoy Gateway provisions an Envoy proxy and a LoadBalancer Service for this Gateway.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: oakline-gateway
+  namespace: oakline
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same

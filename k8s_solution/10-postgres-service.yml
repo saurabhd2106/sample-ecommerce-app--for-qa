@@ -1,0 +1,18 @@
+# Name must stay "postgres": the backend datasource URL uses this hostname.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: oakline
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: oakline
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oakline-config
+  namespace: oakline
+data:
+  POSTGRES_DB: ecommerce
+  POSTGRES_USER: ecommerce
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce
+  APP_DEMO_RESET_ENABLED: "true"

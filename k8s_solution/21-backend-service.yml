@@ -1,0 +1,18 @@
+# Name must stay "backend": frontend/nginx.conf proxies /api/ to http://backend:8080.
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: oakline
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: oakline
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/saurabhd2106/oakline-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/ecommerce
+            - name: SPRING_DATASOURCE_USERNAME
+              value: ecommerce
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: ecommerce
+            - name: APP_JWT_SECRET
+              value: sample-ecommerce-demo-jwt-secret-key-must-be-long-enough-256bits
+            - name: APP_DEMO_RESET_ENABLED
+              value: "true"
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
